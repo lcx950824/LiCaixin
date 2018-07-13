@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <style>
+    *{padding: 0;margin: 0;}
+    ul li{
+        list-style: none;
+    }
+    a{
+        text-decoration:none;
+    }
+    body{
+        width: 100%;
+        height: 100%;
+    }
+   
+    #box{
+        width:1200px;  
+        margin: 50px auto;     
+    }
+    ul{
+        width: 100%;
+        display: flex;
+	    justify-content:space-between;
+        flex-wrap:wrap;
+    }
+    ul li{
+        box-sizing: border-box;
+        width: 24%;
+        border: 1px solid #ccc;
+        position: relative;
+        height: 270px;
+        margin-bottom: 10px;
+    }
+    #imgg{
+        display: block;
+        padding-left:70px; 
+    }
+    span{
+        color: red;
+        padding:0 0 20px 0;
+        display: block;
+        text-align: center;
+    }
+    p{
+        padding:0 0 20px 0;
+        text-align: center;
+    }
+    p>a{
+        color: black;
+    }
+    #remove{
+        position: absolute;
+        right: 30px;
+        bottom: 10px;
+        color: black;
+    }
+    #masking{
+        width: 100%;
+        position: absolute;
+        height: 667px;
+        background: black;
+        opacity: 0.5;
+        z-index: 100;
+        left: 0;
+        top :0;
+        display: none;
+    }
+    #box1{
+        width: 300px;
+        height: 200px;
+        position: absolute;
+        left:50%;
+        top:50%;
+        margin-left: -150px;
+        margin-top: -100px;
+        background: #fff;
+        z-index: 333;
+        display: none;
+    }
+    #movebox{
+        width: 100%;
+        height: 40px;
+        position: absolute;
+        left: 0;
+        top:0;
+        cursor:move;
+        background: #b9b9b8;
+       
+    }
+    input{
+        position: absolute;
+        width: 100px;
+        height: 30px;
+        font-size: 16px;
+    }
+    #input1{
+        left: 20px;
+        bottom: 60px;
+    }
+    #input2{
+        right: 20px;
+        bottom: 60px;
+    }
+    
+    </style>
+</head>
+<body>
+    <div id="box">
+        <ul id="oul">
+            <!-- <li>
+                <a id="imgg" href="##"><img src="images/20171220152233_03.png"></a>
+                <span>￥999</span>
+                <P><a id="name" href="##">【春季新品】女时尚字母印花短袖衫</a></P>
+                <a id="remove" href="##">删除</a>
+            </li> -->
+        
+        </ul>
+    </div>
+    <div id="masking">
+    </div>
+    <div id="box1">
+            <div id="movebox"></div>
+            <input id="input1" type="button" value="确定">
+            <input id="input2" type="button" value="否">
+        </div>
+</body>
+</html>
+<script>
+    var oul=document.getElementById("oul")
+    function ajax(url,succCb,errCb){
+        var xml = new XMLHttpRequest();
+        xml.open("get",url,true);
+        xml.send();
+        xml.onreadystatechange = function(){
+            if(xml.readyState == 4 && xml.status == 200){			
+                succCb&&succCb(xml.responseText)
+            }else{
+                errCb&&errCb(xml.status)
+            }
+        }
+    }
+    ajax("shangping.json",function(data){
+        var obj=JSON.parse(data);
+        var str="";
+        for(var i=0;i<obj.length;i++){
+            str+=`<li>
+                <a id="imgg" href="##"><img src="${obj[i].img}"></a>
+                <span>${obj[i].price}</span>
+                <P><a id="name" href="##">${obj[i].title}</a></P>
+                <a id="remove" class="remove" href="##">删除</a>
+                </li>`   
+        }       
+        oul.innerHTML= str;
+    })
+    var masking=document.getElementById("masking");
+    var box=document.getElementById("box1")
+    document.onclick=function(e){
+        var e=e||event;
+        var target=e.target||srcElement;
+        if(target.className=="remove" && target.tagName=="A"){
+            box.style.display="block";
+            masking.style.display="block";
+        }
+    }
+
+    var movebox=document.getElementById("movebox")
+    movebox.onmousedown = function(e){
+	var e = e||event;
+	var disX = e.offsetX;
+	var disY = e.offsetY;
+	
+	document.onmousemove = function(e){
+		var e = e||event;
+		e.preventDefault?e.preventDefault():e.returnValue = false
+		box.style.left = e.clientX - disX+150 +"px";
+		box.style.top = e.clientY - disY+100 +"px";
+		if(box.style.left<=0){
+			box.style.left = 0;		
+		}
+		if(box.style.top<=0){
+			box.style.top = 0;		
+		}
+		var bw=box.offsetWidth;
+		var bh=box.offsetHeight;
+		
+		if(box.style.left>=bw-box.offsetWidth||box.style.top>=bh-box.offsetHeight){
+			box.style.left =bw-box.offsetWidth+"px";
+			box.style.top = bh-box.offsetHeight+"px";
+		}
+	
+	}
+	document.onmouseup = function(){
+			document.onmousemove = null;
+			document.onmouseup = null;
+		}
+}
+    var input1=document.getElementById("input1");
+    var input2=document.getElementById("input2")
+    input1.onclick=function(){
+        box.style.display="none";
+        masking.style.display="none";
+    }
+    input2.onclick=function(){
+        box.style.display="none";
+        masking.style.display="none";
+    }
+</script>
